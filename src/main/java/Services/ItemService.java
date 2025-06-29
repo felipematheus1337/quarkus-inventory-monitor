@@ -7,6 +7,7 @@ import Exceptions.ResourceNotFoundException;
 import Mapper.ItemMapper;
 import Repositories.GenericRepository;
 import Utils.BusinessUtils;
+import io.quarkus.redis.datasource.RedisDataSource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -17,12 +18,14 @@ public class ItemService {
     private final SupplierService supplierService;
     private final ItemMapper mapper;
     private final GenericRepository<Item> repository;
+    private final SupplierCacheService supplierCacheService;
 
     @Inject
-    public ItemService(SupplierService supplierService, ItemMapper mapper, GenericRepository<Item> repository) {
+    public ItemService(SupplierService supplierService, ItemMapper mapper, GenericRepository<Item> repository, RedisDataSource redis, SupplierCacheService supplierCacheService) {
         this.supplierService = supplierService;
         this.mapper = mapper;
         this.repository = repository;
+        this.supplierCacheService = supplierCacheService;
     }
 
     @Transactional
@@ -38,6 +41,9 @@ public class ItemService {
         supplier.addItem(item);
 
         this.supplierService.persist(supplier);
+
+        this.supplierCacheService.invalidate(supplier.getId());
+        this.supplierCacheService.put(supplier);
     }
 
     public ItemHttp getById(Long id) {

@@ -14,6 +14,12 @@ services:
     ports:
       - "5433:5432"
 
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    restart: always
+
   app:
     image: local/inventory-monitor:latest
     build:
