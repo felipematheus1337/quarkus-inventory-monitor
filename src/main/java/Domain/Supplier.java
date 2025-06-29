@@ -1,5 +1,6 @@
 package Domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -18,6 +19,7 @@ public class Supplier implements Serializable {
     private String email;
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Item> itens = new HashSet<>();
 
     public Supplier(Long id, String name, String phone, String email) {
