@@ -2,6 +2,7 @@ package Resources;
 
 import Domain.http.SupplierHttp;
 import Services.SupplierService;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -13,6 +14,7 @@ public class SupplierResource {
 
     private final SupplierService service;
 
+    @Inject
     public SupplierResource(SupplierService service) {
         this.service = service;
     }
