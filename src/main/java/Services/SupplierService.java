@@ -2,8 +2,10 @@ package Services;
 
 import Domain.Supplier;
 import Domain.http.SupplierHttp;
+import Exceptions.ResourceNotFoundException;
 import Mapper.SupplierMapper;
-import Repositories.SupplierRepository;
+import Repositories.GenericRepository;
+import Utils.BusinessUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -13,35 +15,40 @@ import java.util.Optional;
 @ApplicationScoped
 public class SupplierService {
 
-    private final SupplierRepository supplierRepository;
+    private final GenericRepository<Supplier> repository;
     private final SupplierMapper mapper;
 
     @Inject
-    public SupplierService(SupplierRepository supplierRepository, SupplierMapper mapper) {
-        this.supplierRepository = supplierRepository;
+    public SupplierService(GenericRepository<Supplier>supplierRepository, SupplierMapper mapper) {
+        this.repository = supplierRepository;
         this.mapper = mapper;
     }
 
     @Transactional
     public void create(SupplierHttp supplierHttp) {
         Supplier supplierToCreate = this.mapper.toEntity(supplierHttp);
-        this.supplierRepository.persist(supplierToCreate);
+        this.repository.persist(supplierToCreate);
     }
 
     @Transactional
     public void delete(Long id) {
-        this.supplierRepository.deleteById(id);
+        this.repository.deleteById(id);
     }
 
     public SupplierHttp get(Long id) {
-        Optional<Supplier> optSupplier =  this.supplierRepository.findByIdOptional(id);
-
-        if (optSupplier.isPresent())
-            return mapper.toDto(optSupplier.get());
-
-        return null;
+        return repository.findByIdOptional(id)
+                .map(mapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException
+                        (BusinessUtils.SUPPLIER_NOT_FOUND_MESSAGE + "Id: " + id));
     }
 
+    protected Supplier getEntity(Long id) {
+        return repository.findById(id);
+    }
 
+    @Transactional
+    protected void persist(Supplier supplier) {
+        this.repository.persist(supplier);
+    }
 
 }

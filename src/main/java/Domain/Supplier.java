@@ -74,6 +74,7 @@ public class Supplier implements Serializable {
     }
 
     public void addItem(Item item) {
-        this.getItens().add(item);
+        itens.add(item);
+        item.setSupplier(this);
     }
 }

@@ -17,6 +17,4 @@ public interface SupplierMapper {
 
     List<SupplierHttp> toDto(List<Supplier> suppliers);
 
-    @Mapping(target = "itens", ignore = true)
-    void updateEntity(SupplierHttp dto, @MappingTarget Supplier entity);
 }
