@@ -2,6 +2,7 @@ package Resources;
 
 import Domain.http.SupplierHttp;
 import Services.SupplierService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -21,7 +22,7 @@ public class SupplierResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public RestResponse<Void> create(SupplierHttp supplierHttp, @Context UriInfo uriInfo) {
+    public RestResponse<Void> create(SupplierHttp supplierHttp, @Context UriInfo uriInfo) throws JsonProcessingException {
         this.service.create(supplierHttp);
         return RestResponse.created(uriInfo.getAbsolutePath());
     }

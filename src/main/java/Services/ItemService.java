@@ -2,6 +2,7 @@ package Services;
 
 import Domain.Item;
 import Domain.Supplier;
+import Domain.amqp.ItemAMQP;
 import Domain.http.ItemHttp;
 import Exceptions.ResourceNotFoundException;
 import Mapper.ItemMapper;
@@ -11,6 +12,11 @@ import io.quarkus.redis.datasource.RedisDataSource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @ApplicationScoped
 public class ItemService {
@@ -31,6 +37,8 @@ public class ItemService {
     @Transactional
     public void createItem(ItemHttp itemHttp) {
         Item item = mapper.toEntity(itemHttp);
+        item.setCreatedAt(LocalDateTime.now());
+        item.setUpdatedAt(LocalDateTime.now());
 
         Supplier supplier = this.supplierService.getEntity(itemHttp.supplierId());
 
@@ -56,5 +64,11 @@ public class ItemService {
     @Transactional
     public void delete(Long id) {
         this.repository.deleteById(id);
+    }
+
+    @Transactional
+    public void consume(List<ItemAMQP> itens) {
+        List<Item> itensEntities = this.mapper.amqpToEntities(itens);
+        this.repository.persist(itensEntities);
     }
 }

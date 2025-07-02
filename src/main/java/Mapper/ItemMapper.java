@@ -1,6 +1,7 @@
 package Mapper;
 
 import Domain.Item;
+import Domain.amqp.ItemAMQP;
 import Domain.http.ItemHttp;
 import org.mapstruct.Mapper;
 
@@ -12,6 +13,8 @@ public interface ItemMapper {
     ItemHttp toDTO(Item item);
 
     Item toEntity(ItemHttp itemHttp);
+
+    List<Item> amqpToEntities(List<ItemAMQP> itensAMQP);
 
     List<ItemHttp> toItemHttpList(List<Item> itens);
 }

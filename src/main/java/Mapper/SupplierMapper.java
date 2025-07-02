@@ -1,6 +1,7 @@
 package Mapper;
 
 import Domain.Supplier;
+import Domain.amqp.SupplierAMQP;
 import Domain.http.SupplierHttp;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,6 +15,8 @@ public interface SupplierMapper {
     SupplierHttp toDto(Supplier supplier);
 
     Supplier toEntity(SupplierHttp dto);
+
+    SupplierAMQP toAMQP(Supplier supplier);
 
     List<SupplierHttp> toDto(List<Supplier> suppliers);
 
