@@ -51,7 +51,7 @@ public class SupplierService {
         if (cached.isPresent()) return mapper.toDto(cached.get());
 
         Supplier entity = getEntity(id);
-        if (entity == null) throw new ResourceNotFoundException(BusinessUtils.SUPPLIER_NOT_FOUND_MESSAGE + "Id: " + id);
+        if (entity == null) throw new ResourceNotFoundException("SUPPLIER" + BusinessUtils.OBJECT_NOT_FOUND_MESSAGE + "Id: " + id);
 
         cacheService.put(entity);
         return mapper.toDto(entity);

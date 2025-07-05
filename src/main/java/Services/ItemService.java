@@ -9,6 +9,7 @@ import Mapper.ItemMapper;
 import Repositories.GenericRepository;
 import Utils.BusinessUtils;
 import io.quarkus.redis.datasource.RedisDataSource;
+import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -25,13 +26,15 @@ public class ItemService {
     private final ItemMapper mapper;
     private final GenericRepository<Item> repository;
     private final SupplierCacheService supplierCacheService;
+    private final EventBus eventBus;
 
     @Inject
-    public ItemService(SupplierService supplierService, ItemMapper mapper, GenericRepository<Item> repository, RedisDataSource redis, SupplierCacheService supplierCacheService) {
+    public ItemService(SupplierService supplierService, ItemMapper mapper, GenericRepository<Item> repository, RedisDataSource redis, SupplierCacheService supplierCacheService, EventBus eventBus) {
         this.supplierService = supplierService;
         this.mapper = mapper;
         this.repository = repository;
         this.supplierCacheService = supplierCacheService;
+        this.eventBus = eventBus;
     }
 
     @Transactional
@@ -43,7 +46,7 @@ public class ItemService {
         Supplier supplier = this.supplierService.getEntity(itemHttp.supplierId());
 
         if (supplier == null)
-            throw new ResourceNotFoundException(BusinessUtils.SUPPLIER_NOT_FOUND_MESSAGE +
+            throw new ResourceNotFoundException("SUPPLIER" + BusinessUtils.OBJECT_NOT_FOUND_MESSAGE +
                     "Id: " + itemHttp.supplierId());
 
         supplier.addItem(item);
@@ -57,8 +60,8 @@ public class ItemService {
     public ItemHttp getById(Long id) {
         return this.repository.findByIdOptional(id)
                 .map(mapper::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        BusinessUtils.SUPPLIER_NOT_FOUND_MESSAGE + "Id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("SUPPLIER" +
+                        BusinessUtils.OBJECT_NOT_FOUND_MESSAGE + "Id: " + id));
     }
 
     @Transactional
@@ -70,5 +73,6 @@ public class ItemService {
     public void consume(List<ItemAMQP> itens) {
         List<Item> itensEntities = this.mapper.amqpToEntities(itens);
         this.repository.persist(itensEntities);
+        eventBus.send("item-lote", itensEntities.size());
     }
 }

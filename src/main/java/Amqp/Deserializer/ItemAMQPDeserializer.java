@@ -1,4 +1,4 @@
-package Amqp;
+package Amqp.Deserializer;
 
 import Domain.amqp.ItemAMQP;
 import com.fasterxml.jackson.core.type.TypeReference;
